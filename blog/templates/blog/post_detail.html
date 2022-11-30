@@ -10,6 +10,7 @@
     <title>{{ post.title }} - Blog</title>
     <link rel="stylesheet" href="{% static 'blog/bootstrap/bootstrap.min.css' %}" media="screen">
     <link rel="stylesheet" href="{% static 'blog/css/styles.css' %}" media="screen">
+     <script src="https://kit.fontawesome.com/66e5a82cea.js" crossorigin="anonymous"></script>
 </head>
     <body>
         <!-- Responsive navbar-->
@@ -52,6 +53,12 @@
                         <!-- Post content-->
                         <section class="mb-5">
                             <p class="fs-5 mb-4">{{ post.content }}</p>
+
+                            {% if post.file_upload %}
+                            <a href="{{ post.file_upload.url }}" class="btn btn-outline-danger" role="button" download>
+                                <i class="fa-regular fa-circle-down"></i> Download : {{ post.get_file_name }}
+                            </a>
+                            {% endif %}
                         </section>
                     </article>
                     <!-- Comments section-->

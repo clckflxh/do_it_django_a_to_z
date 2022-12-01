@@ -1,10 +1,13 @@
 from django.test import TestCase, Client
 from bs4 import BeautifulSoup
+from django.contrib.auth.models import User
 from .models import Post
 
 class TestView(TestCase):
     def setUp(self):
         self.client = Client()
+        self.user_kaka = User.objects.create_user(username='kaka', pasword='somepassword')
+        self.user_messi = User.objects.create_user(username='messi', password='somepassword')
 
     def navbar_test(self, soup):
         navbar = soup.nav
@@ -41,10 +44,12 @@ class TestView(TestCase):
         post_001 = Post.objects.create(
             title='첫 번째 포스트입니다.',
             content='Hello World. We are the world.',
+            author=self.user_kaka
         )
         post_002 = Post.objects.create(
             title='두 번째 포스트입니다.',
             content='1등이 전부는 아니잖아요?',
+            author=self.user_messi
         )
         self.assertEqual(Post.objects.count(), 2)
 
@@ -58,10 +63,14 @@ class TestView(TestCase):
 
         self.assertNotIn('아직 게시물이 없습니다', main_area.text)
 
+        self.assertIn(self.user_kaka.username.upper(), main_area.text)
+        self.assertIn(self.user_messi.username.upper(), main_area.text)
+
     def test_post_detail(self):
         post_001 = Post.objects.create(
             title='첫 번째 포스트입니다.',
             content='Hello World. We are the world.',
+            author=self.user_kaka,
         )
 
         self.assertEqual(post_001.get_absolute_url(), '/blog/1/')
@@ -71,6 +80,8 @@ class TestView(TestCase):
         soup = BeautifulSoup(response.content, 'html.parser')
 
         self.navbar_test(soup)
+
+        self.assertIn(self.user_kaka.username.upper(), post_area.text)
 
         self.assertIn(post_001.title, soup.title.text)
 

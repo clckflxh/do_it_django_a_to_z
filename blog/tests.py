@@ -43,3 +43,4 @@ class TestView(TestCase):
         self.assertIn(post_002.title, main_area.text)
 
         self.assertNotIn('아직 게시물이 없습니다', main_area.text)
+

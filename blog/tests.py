@@ -3,44 +3,82 @@ from bs4 import BeautifulSoup
 from django.contrib.auth.models import User
 from .models import Post, Category
 
-class TestView(TestCase):
-    def setUp(self):
+class TestView(TestCase) :
+    def setUp(self) :
         self.client = Client()
-        self.user_kaka = User.objects.create_user(username='kaka', password='somepassword')
-        self.user_messi = User.objects.create_user(username='messi', password='somepassword')
+        self.user_trump = User.objects.create_user(
+            username='trump', password='somepassword'
+        )
+        self.user_obama = User.objects.create_user(
+            username='obama', password='somepassword'
+        )
 
-        self.category_programming = Category.objects.create(name='programming', slug='programming')
-        self.category_music = Category.objects.create(name='music', slug='music')
+        self.category_programming = Category.objects.create(name="programming",
+                                                            slug="programming")
+        self.category_music = Category.objects.create(name="music",
+                                                            slug="music")
 
         self.post_001 = Post.objects.create(
             title='첫 번째 포스트입니다.',
-            content='Hello World. We are the world.',
+            content='하하하하히히히히히',
             category=self.category_programming,
-            author=self.user_kaka
+            author=self.user_trump
         )
-
         self.post_002 = Post.objects.create(
             title='두 번째 포스트입니다.',
-            content='1등이 전부는 아니잖아요?',
+            content='후후후후후햐햐햐햐햐',
             category=self.category_music,
-            author=self.user_messi
+            author=self.user_obama
         )
-
         self.post_003 = Post.objects.create(
             title='세 번째 포스트입니다.',
-            content='category가 없을 수도 있죠',
-            author=self.user_messi
+            content='카테고리가 없을 수도~',
+            author=self.user_obama
         )
 
-    def category_card_test(self, soup):
+        def test_category_page(self):
+            response = self.client.get(self.category_programming.get_absolute_rul())
+            self.assertEqual(response.status_code, 200)
+
+            soup = BeautifulSoup(response.content, 'html.parser')
+            self.navbar_test(soup)
+            self.category_card_test(soup)
+
+            self.assertIn(self.category_programming.name, soup.h1.text)
+
+            main_area = soup.find('div', id='main-area')
+            self.assertIn(self.category_programming.name, main_area.text)
+            self.assertIn(self.post_001.title, main_area.text)
+            self.assertNotIn(self.post_002.title, main_area.text)
+            self.assertNotIn(self.post_003.title, main_area.text)
+
+    def category_card_test(self, soup) :
         categories_card = soup.find('div', id='categories-card')
         self.assertIn('Categories', categories_card.text)
         self.assertIn(f'{self.category_programming.name} ({self.category_programming.post_set.count()})', categories_card.text)
         self.assertIn(f'{self.category_music.name} ({self.category_music.post_set.count()})', categories_card.text)
         self.assertIn(f'미분류 (1)', categories_card.text)
 
+    def navbar_test(self, soup):
+        navbar = soup.nav
+        self.assertIn('Blog', navbar.text)
+        self.assertIn('About Me', navbar.text)
+
+        logo_btn = navbar.find('a', text='Do it Django')
+        self.assertEqual(logo_btn.attrs['href'], '/')
+
+        home_btn = navbar.find('a', text='Home')
+        self.assertEqual(home_btn.attrs['href'], '/')
+
+        blog_btn = navbar.find('a', text='Blog')
+        self.assertEqual(blog_btn.attrs['href'], '/blog/')
+
+        about_me_btn = navbar.find('a', text='About Me')
+        self.assertEqual(about_me_btn.attrs['href'], '/about_me/')
+
+
+
     def test_post_list(self):
-        #포스트가 있는 경우
         self.assertEqual(Post.objects.count(), 3)
 
         response = self.client.get('/blog/')
@@ -65,10 +103,9 @@ class TestView(TestCase):
         self.assertIn('미분류', post_003_card.text)
         self.assertIn(self.post_003.title, post_003_card.text)
 
-        self.assertIn(self.user_kaka.username.upper(), main_area.text)
-        self.assertIn(self.user_messi.username.upper(), main_area.text)
+        self.assertIn(self.user_trump.username.upper(), main_area.text)
+        self.assertIn(self.user_obama.username.upper(), main_area.text)
 
-        # 포스트가 없는 경우
         Post.objects.all().delete()
         self.assertEqual(Post.objects.count(), 0)
         response = self.client.get('/blog/')
@@ -76,83 +113,25 @@ class TestView(TestCase):
         main_area = soup.find('div', id='main-area')
         self.assertIn('아직 게시물이 없습니다', main_area.text)
 
-        response = self.client.get('/blog/')
-
-        self.assertEqual(response.status_code, 200)
-
-        soup = BeautifulSoup(response.content, 'html.parser')
-        self.assertEqual(soup.title.text, 'Blog')
-
-        self.navbar_test(soup)
-
-        self.assertEqual(Post.objects.count(), 0)
-
-        main_area = soup.find('div', id='main-area')
-        self.assertIn('아직 게시물이 없습니다', main_area.text)
-
-        post_001 = Post.objects.create(
-            title='첫 번째 포스트입니다.',
-            content='Hello World. We are the world.',
-            author=self.user_kaka
-        )
-        post_002 = Post.objects.create(
-            title='두 번째 포스트입니다.',
-            content='1등이 전부는 아니잖아요?',
-            author=self.user_messi
-        )
-        self.assertEqual(Post.objects.count(), 2)
-
-        response = self.client.get('/blog/')
-        soup = BeautifulSoup(response.content, 'html.parser')
-        self.assertEqual(response.status_code, 200)
-
-        main_area = soup.find('div', id='main-area')
-        self.assertIn(post_001.title, main_area.text)
-        self.assertIn(post_002.title, main_area.text)
-
-        self.assertNotIn('아직 게시물이 없습니다', main_area.text)
-
-        self.assertIn(self.user_kaka.username.upper(), main_area.text)
-        self.assertIn(self.user_messi.username.upper(), main_area.text)
 
     def test_post_detail(self):
-        post_001 = Post.objects.create(
-            title='첫 번째 포스트입니다.',
-            content='Hello World. We are the world.',
-            author=self.user_kaka,
-        )
 
-        self.assertEqual(post_001.get_absolute_url(), '/blog/4/')
+        self.assertEqual(self.post_001.get_absolute_url(), '/blog/1/')
 
-        response = self.client.get(post_001.get_absolute_url())
+        response = self.client.get(self.post_001.get_absolute_url())
         self.assertEqual(response.status_code, 200)
         soup = BeautifulSoup(response.content, 'html.parser')
 
         self.navbar_test(soup)
 
-        self.assertIn(self.user_kaka.username.upper(), post_area.text)
+        self.category_card_test(soup)
 
-        self.assertIn(post_001.title, soup.title.text)
+        self.assertIn(self.post_001.title, soup.title.text)
 
         main_area = soup.find('div', id='main-area')
         post_area = main_area.find('div', id='post-area')
-        self.assertIn(post_001.title, post_area.text)
+        self.assertIn(self.post_001.title, post_area.text)
+        self.assertIn(self.category_programming.name, post_area.text)
 
-        self.assertIn(post_001.content, post_area.text)
-
-    def navbar_test(self, soup):
-        navbar = soup.nav
-        self.assertIn('Blog', navbar.text)
-        self.assertIn('About Me', navbar.text)
-
-        logo_btn = navbar.find('a', text='M.R ClaSs')
-        self.assertEqual(logo_btn.attrs['href'], '/')
-
-        home_btn = navbar.find('a', text='Home')
-        self.assertEqual(home_btn.attrs['href'], '/')
-
-        blog_btn = navbar.find('a', text='Blog')
-        self.assertEqual(blog_btn.attrs['href'], '/blog/')
-
-        about_me_btn = navbar.find('a', text='About Me')
-        self.assertEqual(about_me_btn.attrs['href'], '/about_me/')
+        self.assertIn(self.user_trump.username.upper(), post_area.text)
+        self.assertIn(self.post_001.content, post_area.text)

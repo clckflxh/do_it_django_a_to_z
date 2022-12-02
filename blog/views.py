@@ -13,6 +13,7 @@ class PostList(ListView) :
         context['no_category_post_count'] = Post.objects.filter(category=None).count()
         return context
 
+# 믹스 인 : 클래스를 상속하지 않고도 메소드를 조합할 수 있는 기법
 class PostCreate(LoginRequiredMixin, CreateView):
     model = Post
     fields = ['title', 'hook_text', 'content', 'head_image', 'file_upload', 'category']

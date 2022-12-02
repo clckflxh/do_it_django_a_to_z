@@ -4,7 +4,7 @@ from .models import Post, Category
 
 class PostList(ListView) :
     model = Post
-    ordering = '-pk'
+    ordering = 'pk'
 
     def get_context_data(self, **kwargs):
         context = super(PostList, self).get_context_data()

@@ -10,20 +10,19 @@ class Tag(models.Model) :
         return self.name
 
     def get_absolute_url(self):
-        return f'/blog/category/{self.slug}/'
+        return f'/blog/tag/{self.slug}/'
 
 
 class Category(models.Model) :
     name = models.CharField(max_length=50, unique=True)
-
-    # slug : url을 생성하기 위해 문자를 조합하는 방식
-    slug = models.SlugField(max_length=50, unique=True, allow_unicode=True)
+    slug = models.SlugField(max_length=200, unique=True, allow_unicode=True)
 
     def __str__(self):
         return self.name
 
     def get_absolute_url(self):
         return f'/blog/category/{self.slug}/'
+
     class Meta:
         verbose_name_plural = 'Categories'
 

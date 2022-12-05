@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'blog',
     'crispy_forms',
+    'markdownx',
     'single_pages',
 
 ]

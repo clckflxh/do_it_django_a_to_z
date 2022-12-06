@@ -1,0 +1,15 @@
+body {
+    background: url('../images/apple-g61eef4d29_1920.jpg');
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    background-size: cover;
+    -o-background-size: cover;
+}
+
+section {
+   margin-bottom: 150px;
+}
+
+.card {
+    background-color: rgba(255, 255, 255, 0.6);
+}

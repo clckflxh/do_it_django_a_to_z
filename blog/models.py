@@ -44,6 +44,11 @@ class Post(models.Model):
     category = models.ForeignKey(Category, null=True, blank=True, on_delete=models.SET_NULL)
 
     tags = models.ManyToManyField(Tag, blank=True)
+    def get_avatar_url(self):
+        if self.author.socialaccount_set.exists():
+            return self.author.socialaccount_set.first().get_avatar_url()
+        else:
+            return f'https://doitdjango.com/avatar/id/1362/e0b33fadafefe605/svg/{self.author.email}'
 
     def __str__(self):
         return f'[{self.pk}] {self.title} :: {self.author}'

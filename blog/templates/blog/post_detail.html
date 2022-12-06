@@ -66,18 +66,17 @@
                     <!-- Comments section-->
                     <div id="comment-area">
                     <section class="mb-5">
-                        <div class="card bg-light"> <h5> &nbsp; Leave a comment: </h5>
-                            <hr/>
+                        <div class="card bg-light"> <br/><h3>&nbsp;&nbsp;Leave Comment:</h3>
                             <div class="card-body">
                                 {%if user.is_authenticated %}
                                 <!-- Comment form-->
-                                <form class="mb-4" id="comment-form" method="POST" action="{{ post.get_absolute_url }}new_comment/">
+                                <form id="comment-form" method="POST" action="{{ post.get_absolute_url }}new_comment/">
                                     {% csrf_token %}
                                     {{ comment_form | crispy }}
-                                <button type="submit" class="btn btn-danger">Submit</button>
+                                <button type="submit" class="btn btn-danger mb-5">Submit</button>
                                 </form>
                                 {% else %}
-                                    <a role="button" class="btn btn-outline-dark btn-block btn-sm" href="#" data-toggle="modal" data-target="#loginModal">
+                                    <a role="button" class="btn btn-outline-dark btn-block btn-sm my-3" href="#" data-toggle="modal" data-target="#loginModal">
                                         Log in and leave a comment
                                     </a>
                                 {% endif %}
@@ -85,11 +84,11 @@
                                     {% if post.comment_set.exists %}
                                       {% for comment in post.comment_set.iterator %}
                                 <!-- Single comment-->
-                                <div class="d-flex" id="comment-{{ comment.pk }}">
-                                    <div class="flex-shrink-0">
-                                    <img class="rounded-circle" src="{{ comment.get_avatar_url }}" alt="{{ comment.author }}" width="60px" />
+                                <div class="d-flex w-100" id="comment-{{ comment.pk }}">
+                                    <div class="flex-shrink-0 mr-3">
+                                    <img class="rounded-circle" src="{{ comment.get_avatar_url }}" alt="{{ comment.author }}" width="60px"/>
                                 </div>
-                                    <div class="ms-3">
+                                    <div class="flex-grow-1 mb4-4">
                                         {% if user.is_authenticated and comment.author == user %}
                                             <div class="float-right">
                                                 <a role="button" class="btn btn-sm btn-outline-danger"
